@@ -1,19 +1,39 @@
 #!/usr/bin/env python3
 
 '''
-It's a timer.
-* Accepted values >= 1 second
+It's a GUI version of the timer.
+* Accepted values: >= 1 second
 * Fractional seconds rounds to integer part by math rules
 
 Created by Ivan Arzhanov (kkecher)
 Dec 2020.
 '''
 
+from tkinter import *
+from tkinter import ttk
 import time
 import math
 import re
 from playsound import playsound
+from contracts import contract, new_contract
 
+
+match_word_form = re.compile(r'\d(\s+)?[чhмmsс]', flags=re.I)
+match_digit_form = re.compile(r':\d', flags=re.I)
+match_hours = re.compile(r'(\d+(?:.\d+)?)(?:\s+)?[чh]', flags=re.I)
+match_minutes = re.compile(r'(\d+(?:.\d+)?)(?:\s+)?[мm]', flags=re.I)
+match_seconds = re.compile(r'(\d+(?:.\d+)?)(?:\s+)?[sс]', flags=re.I)
+
+digit_form = new_contract('digit_form', lambda t: isinstance(t, str) and match_digit_form.search(t)!=None and len(t.split(':'))<4)
+digit_form.check('4:2')
+digit_form.check(':2')
+digit_form.check('05:4:')
+digit_form.check(':444:')
+digit_form.fail('2')
+digit_form.fail('foo')
+digit_form.fail('4:44:443:333')
+
+@contract(user_time=digit_form)
 def transform_digit_form_to_seconds(user_time):
     '''
     Transform time in format hh:mm:ss to seconds
@@ -32,15 +52,15 @@ def transform_digit_form_to_seconds(user_time):
     seconds += hours * 60 * 60
     return(int(seconds))
 
-def transform_word_form_to_seconds(user_time):
+def transform_word_form_to_seconds(user_input):
     '''
     Transform word form of time to seconds, e.g. 1sec = 1, 1.5 h = 5400, etc.
     '''
     seconds = 0
 
-    hours_word_form = re.search(r'(\d+(?:.\d+)?)(?:\s+)?[чh]', user_time, flags=re.I)
-    minutes_word_form = re.search(r'(\d+(?:.\d+)?)(?:\s+)?[мm]', user_time, flags=re.I)
-    seconds_word_form = re.search(r'(\d+(?:.\d+)?)(?:\s+)?[sс]', user_time, flags=re.I)
+    hours_word_form = match_hours.search(user_input)
+    minutes_word_form = match_minutes.search(user_input)
+    seconds_word_form = match_seconds.search(user_input)
 
     if hours_word_form:
         hours_word_form = hours_word_form.group(1)
@@ -63,12 +83,17 @@ def transform_word_form_to_seconds(user_time):
     seconds = round(seconds, 0)
     return(int(seconds))
 
-def countdown(seconds):
+def countdown(*args):
     '''
     Timer - decrease time to 0.
     '''
-    if seconds < 0:
-        raise ValueError('Negative seconds to countdown: ', seconds)
+    while True:
+        user_input = time_.get()
+        if match_word_form.search(user_input):
+            seconds = transform_word_form_to_seconds(user_input)
+        else:
+            seconds = transform_digit_form_to_seconds(user_input)
+        break
 
     start_time = round(time.perf_counter(), 0)
     end_time = start_time + seconds
@@ -95,13 +120,31 @@ def print_pretty_time(seconds):
     print(pretty_time)
     return(pretty_time)
 
-user_time = input('Enter user_time to count down: ')
-if re.search(r'[a-zа-я]', user_time, flags=re.I):
-    seconds = transform_word_form_to_seconds(user_time)
-else:
-    seconds = transform_digit_form_to_seconds(user_time)
-countdown(seconds)
-print()
-print('It\'s time to have a rest! You should consider changing type of your activity to mental or phisical.')
-while True:
-    playsound('Christmas.mp3')
+#user_time = input('Enter user_time to count down: ')
+#countdown(seconds)
+#print()
+#print('It\'s time to have a rest! You should consider changing type of your activity to mental or phisical.')
+#while True:
+#    playsound('Christmas.mp3')
+
+root = Tk()
+root.title("Timer by kkecher")
+
+mainframe = ttk.Frame(root, padding=10)
+mainframe.grid(column=0, row=0, sticky=(N, W, E, S))
+root.columnconfigure(0, weight=1)
+root.rowconfigure(0, weight=1)
+
+time_ = StringVar()
+time_entry = ttk.Entry(mainframe, textvariable=time_)
+time_entry.grid(column=0, row=0, padx=5, pady=5)
+
+#TBD: start_button is inactive while seconds == ''
+#TBD: bind start_button to `ENTER`
+#TBD: check if all elements correct expand with window expanding
+start_button = ttk.Button(mainframe, text='GO', command=countdown)
+start_button.grid(column=1, row=0, padx=5, pady=5)
+
+root.bind('<Return>', lambda e: start_button.invoke())
+time_entry.focus()
+root.mainloop()

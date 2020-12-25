@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 import unittest
 import timer
 
@@ -156,7 +158,6 @@ class TestPrintCurrentTime(unittest.TestCase):
         self.assertEqual(timer.print_pretty_time(7200), '02:00:00')
         self.assertEqual(timer.print_pretty_time(1200), '00:20:00')
         self.assertEqual(timer.print_pretty_time(904), '00:15:04')
-
 
 if __name__ == '__main__':
     unittest.main()
