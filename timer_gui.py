@@ -19,21 +19,24 @@ from contracts import contract, new_contract
 
 
 match_word_form = re.compile(r'\d(\s+)?[чhмmsс]', flags=re.I)
-match_digit_form = re.compile(r':\d', flags=re.I)
+match_digit_form = re.compile(r'\d', flags=re.I)
 match_hours = re.compile(r'(\d+(?:.\d+)?)(?:\s+)?[чh]', flags=re.I)
 match_minutes = re.compile(r'(\d+(?:.\d+)?)(?:\s+)?[мm]', flags=re.I)
 match_seconds = re.compile(r'(\d+(?:.\d+)?)(?:\s+)?[sс]', flags=re.I)
 
-digit_form = new_contract('digit_form', lambda t: isinstance(t, str) and match_digit_form.search(t)!=None and len(t.split(':'))<4)
+digit_form = new_contract('digit_form', lambda t: isinstance(t, str) and match_digit_form.search(t)!=None)
 digit_form.check('4:2')
 digit_form.check(':2')
 digit_form.check('05:4:')
 digit_form.check(':444:')
-digit_form.fail('2')
+digit_form.check('2')
+digit_form.check('-20')
+digit_form.check('0')
+digit_form.check('4:44:443:333')
 digit_form.fail('foo')
-digit_form.fail('4:44:443:333')
+digit_form.fail('bar:foo:baz')
 
-@contract(user_time=digit_form)
+@contract(user_time=digit_form, returns='int,>=0')
 def transform_digit_form_to_seconds(user_time):
     '''
     Transform time in format hh:mm:ss to seconds
