@@ -1,7 +1,38 @@
 #!/usr/bin/env python3
 
 import unittest
-import timer
+import timer_gui as timer
+
+class TestTransformDigitFormToSeconds(unittest.TestCase):
+    def test_result(self):
+        self.assertEqual(timer.transform_digit_form_to_seconds('0:5:3'), 303)
+        self.assertEqual(timer.transform_digit_form_to_seconds('00:5:3'), 303)
+        self.assertEqual(timer.transform_digit_form_to_seconds('0:15:3'), 903)
+        self.assertEqual(timer.transform_digit_form_to_seconds('00:15:3'), 903)
+        self.assertEqual(timer.transform_digit_form_to_seconds('0:5:03'), 303)
+        self.assertEqual(timer.transform_digit_form_to_seconds('0:5:32'), 332)
+        self.assertEqual(timer.transform_digit_form_to_seconds('0:3'), 180)
+        self.assertEqual(timer.transform_digit_form_to_seconds('0   : 3'), 180)
+        self.assertEqual(timer.transform_digit_form_to_seconds('0:03'), 180)
+        self.assertEqual(timer.transform_digit_form_to_seconds('0:12'), 720)
+        self.assertEqual(timer.transform_digit_form_to_seconds('00:12'), 720)
+        self.assertEqual(timer.transform_digit_form_to_seconds('5:0'), 18000)
+        self.assertEqual(timer.transform_digit_form_to_seconds('05:00'), 18000)
+        self.assertEqual(timer.transform_digit_form_to_seconds('180:05'), 648300)
+        self.assertEqual(timer.transform_digit_form_to_seconds('00:73:300'), 4680)
+        self.assertEqual(timer.transform_digit_form_to_seconds('0:0:0'), 0)
+        self.assertEqual(timer.transform_digit_form_to_seconds('2'), 120)
+        self.assertEqual(timer.transform_digit_form_to_seconds('2:'), 7200)
+        self.assertEqual(timer.transform_digit_form_to_seconds(':20'), 1200)
+        self.assertEqual(timer.transform_digit_form_to_seconds('-20'), 1200)
+        self.assertEqual(timer.transform_digit_form_to_seconds(':15:4'), 904)
+        self.assertEqual(timer.transform_digit_form_to_seconds('4:2'), 14520)
+        self.assertEqual(timer.transform_digit_form_to_seconds(':2'), 120)
+        self.assertEqual(timer.transform_digit_form_to_seconds('05:4:'), 18240)
+        self.assertEqual(timer.transform_digit_form_to_seconds('100:04:'), 360240)
+        self.assertEqual(timer.transform_digit_form_to_seconds(':444:'), 26640)
+        self.assertEqual(timer.transform_digit_form_to_seconds('0'), 0)
+        self.assertEqual(timer.transform_digit_form_to_seconds('4:44:443:333'), 17483)
 
 class TestTransformWordFormToSeconds(unittest.TestCase):
     def test_transform_word_hours_to_seconds(self): 
@@ -12,6 +43,9 @@ class TestTransformWordFormToSeconds(unittest.TestCase):
         self.assertEqual(timer.transform_word_form_to_seconds('50,455h'), 181638)
         self.assertEqual(timer.transform_word_form_to_seconds('0h'), 0)
         self.assertEqual(timer.transform_word_form_to_seconds('0.5h'), 1800)
+        self.assertEqual(timer.transform_word_form_to_seconds('0545hm'), 1962000)
+        self.assertEqual(timer.transform_word_form_to_seconds('   000034      часть'), 122400)
+        self.assertEqual(timer.transform_word_form_to_seconds('Саша шла по шоссе 5часов       7       minetovand5с'), 18425)
 
         self.assertEqual(timer.transform_word_form_to_seconds('5 h'), 18000)
         self.assertEqual(timer.transform_word_form_to_seconds('50 h'), 180000)
@@ -61,6 +95,7 @@ class TestTransformWordFormToSeconds(unittest.TestCase):
         self.assertEqual(timer.transform_word_form_to_seconds('50,455m'), 3027)
         self.assertEqual(timer.transform_word_form_to_seconds('0m'), 0)
         self.assertEqual(timer.transform_word_form_to_seconds('0.5m'), 30)
+        self.assertEqual(timer.transform_word_form_to_seconds(' 5минут5секунд эту песню я пропела'), 305)
 
         self.assertEqual(timer.transform_word_form_to_seconds('5 m'), 300)
         self.assertEqual(timer.transform_word_form_to_seconds('50 m'), 3000)
@@ -101,6 +136,8 @@ class TestTransformWordFormToSeconds(unittest.TestCase):
         self.assertEqual(timer.transform_word_form_to_seconds('50,5s'), 50)
         self.assertEqual(timer.transform_word_form_to_seconds('50,455s'), 50)
         self.assertEqual(timer.transform_word_form_to_seconds('0s'), 0)
+        self.assertEqual(timer.transform_word_form_to_seconds('sadfsdafsdf54s'), 54)
+        self.assertEqual(timer.transform_word_form_to_seconds('5  s;slafjls;adfkj'), 5)
 
         self.assertEqual(timer.transform_word_form_to_seconds('5   sec'), 5)
         self.assertEqual(timer.transform_word_form_to_seconds('50   sec'), 50)
@@ -122,27 +159,6 @@ class TestTransformWordFormToSeconds(unittest.TestCase):
         self.assertEqual(timer.transform_word_form_to_seconds('50,5с'), 50)
         self.assertEqual(timer.transform_word_form_to_seconds('50,455с'), 50)
         self.assertEqual(timer.transform_word_form_to_seconds('0с'), 0)
-
-class TestTransformDigitFormToSeconds(unittest.TestCase):
-    def test_result(self):
-        self.assertEqual(timer.transform_digit_form_to_seconds('0:5:3'), 303)
-        self.assertEqual(timer.transform_digit_form_to_seconds('00:5:3'), 303)
-        self.assertEqual(timer.transform_digit_form_to_seconds('0:15:3'), 903)
-        self.assertEqual(timer.transform_digit_form_to_seconds('00:15:3'), 903)
-        self.assertEqual(timer.transform_digit_form_to_seconds('0:5:03'), 303)
-        self.assertEqual(timer.transform_digit_form_to_seconds('0:5:32'), 332)
-        self.assertEqual(timer.transform_digit_form_to_seconds('0:3'), 180)
-        self.assertEqual(timer.transform_digit_form_to_seconds('0:03'), 180)
-        self.assertEqual(timer.transform_digit_form_to_seconds('0:12'), 720)
-        self.assertEqual(timer.transform_digit_form_to_seconds('00:12'), 720)
-        self.assertEqual(timer.transform_digit_form_to_seconds('5:0'), 18000)
-        self.assertEqual(timer.transform_digit_form_to_seconds('05:00'), 18000)
-        self.assertEqual(timer.transform_digit_form_to_seconds('180:05'), 648300)
-        self.assertEqual(timer.transform_digit_form_to_seconds('00:73:300'), 4680)
-        self.assertEqual(timer.transform_digit_form_to_seconds('0:0:0'), 0)
-        self.assertEqual(timer.transform_digit_form_to_seconds('2'), 7200)
-        self.assertEqual(timer.transform_digit_form_to_seconds(':20'), 1200)
-        self.assertEqual(timer.transform_digit_form_to_seconds(':15:4'), 904)
 
 class TestPrintCurrentTime(unittest.TestCase):
     def test_result(self):
